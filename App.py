@@ -1,17 +1,11 @@
+import os
 import discord
 from discord.ext import commands
 from flask import Flask
-import os
-from dotenv import load_dotenv
 import threading
 
-# Charger les variables d'environnement depuis le fichier .env
-load_dotenv()
-
-app = Flask(__name__)
-
-# Configuration du bot Discord
-TOKEN = os.getenv("TOKEN")  # Ton token de bot Discord, à récupérer depuis .env
+# Récupérer le token de la variable d'environnement
+TOKEN = os.getenv("TOKEN")
 
 intents = discord.Intents.default()
 intents.message_content = True
@@ -30,6 +24,8 @@ async def ping(ctx):
     await ctx.send("Pong !")
 
 # Route pour le serveur Flask
+app = Flask(__name__)
+
 @app.route('/')
 def home():
     return "Le bot est en ligne et fonctionne !"
