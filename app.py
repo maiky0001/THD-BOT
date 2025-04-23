@@ -3,6 +3,7 @@ import os
 from dotenv import load_dotenv
 import discord
 from discord.ext import commands
+import threading
 
 # Charger le .env
 load_dotenv()
@@ -23,16 +24,14 @@ bot = commands.Bot(command_prefix="!", intents=intents)
 async def on_ready():
     print(f"Connecté en tant que {bot.user}")
 
-# Récupérer le port depuis la variable d'environnement ou 5000 par défaut
-port = int(os.getenv("PORT", 5000))
-
 # Lancer le serveur Flask et le bot Discord en même temps
 def run():
-    bot.loop.create_task(run_bot())
-    app.run(host="0.0.0.0", port=port)  # Lancer Flask sur le port correct
+    # Démarrer Flask dans un thread séparé
+    flask_thread = threading.Thread(target=lambda: app.run(host="0.0.0.0", port=int(os.getenv("PORT", 5000))))
+    flask_thread.start()
 
-async def run_bot():
-    await bot.start(os.getenv("DISCORD_TOKEN"))
+    # Lancer le bot
+    bot.run(os.getenv("DISCORD_TOKEN"))
 
 if __name__ == '__main__':
     run()
