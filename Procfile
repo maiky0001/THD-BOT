@@ -1,3 +1,3 @@
 web: python server.py
-web: python app.py
+web: python main.py
 worker: python main.py
