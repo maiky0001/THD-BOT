@@ -1,46 +1,36 @@
+from flask import Flask
 import os
+from dotenv import load_dotenv
 import discord
 from discord.ext import commands
-from flask import Flask
-import threading
 
-# Récupérer le token de la variable d'environnement
-TOKEN = os.getenv("TOKEN")
+# Charger le .env
+load_dotenv()
 
-intents = discord.Intents.default()
-intents.message_content = True
-intents.guilds = True
-
-bot = commands.Bot(command_prefix="!", intents=intents)
-
-# Code du bot Discord
-@bot.event
-async def on_ready():
-    print(f"Connecté en tant que {bot.user}")
-
-# Commande de test pour vérifier que le bot fonctionne
-@bot.command()
-async def ping(ctx):
-    await ctx.send("Pong !")
-
-# Route pour le serveur Flask
 app = Flask(__name__)
 
 @app.route('/')
 def home():
-    return "Le bot est en ligne et fonctionne !"
+    return "Bot en ligne et prêt!"
 
-# Fonction pour démarrer le bot Discord en tâche d'arrière-plan
-def run_bot():
-    bot.run(TOKEN)
+# Configuration du bot Discord
+intents = discord.Intents.default()
+intents.message_content = True
+bot = commands.Bot(command_prefix="!", intents=intents)
 
-# Démarrer le bot dans un thread séparé
-def start_flask():
-    app.run(host="0.0.0.0", port=int(os.environ.get("PORT", 5000)))
+# Lancer le bot
+@bot.event
+async def on_ready():
+    print(f"Connecté en tant que {bot.user}")
 
-if __name__ == "__main__":
-    # Démarrer le bot dans un thread séparé
-    threading.Thread(target=run_bot).start()
+# Lancer le serveur Flask et le bot Discord en même temps
+def run():
+    bot.loop.create_task(run_bot())
+    app.run(debug=True, use_reloader=False)  # use_reloader=False pour éviter de redémarrer le serveur Flask à chaque changement
 
-    # Démarrer Flask
-    start_flask()
+async def run_bot():
+    await bot.start(os.getenv("DISCORD_TOKEN"))
+
+if __name__ == '__main__':
+    run()
+
