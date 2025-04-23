@@ -9,6 +9,9 @@ load_dotenv()
 
 app = Flask(__name__)
 
+port = int(os.getenv("PORT", 5000))  # Définit le port ou utilise 5000 par défaut
+app.run(host="0.0.0.0", port=port)
+
 @app.route('/')
 def home():
     return "Bot en ligne et prêt!"
